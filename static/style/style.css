@@ -43,10 +43,17 @@ body {
     -webkit-text-fill-color: transparent;
 }
 
+.vbox-div {
+    display: flex;
+    flex-direction: column;
+    background-color: #7858A6;
+}
+
 .hbox-div {
     display: flex;
     flex-direction: row;
     padding: 2px;
+    color: #A91079;
 }
 
 .input-div {

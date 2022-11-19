@@ -297,7 +297,7 @@ class GPT(nn.Module):
         
         return logits, loss, attn_dict
 
-    def generate(self, idx, max_new_tokens, temperature=1.0, do_sample=False, top_k=40, return_logits=False, save_grad=False):
+    def generate(self, idx, max_new_tokens, temperature=1.0, do_sample=False, top_k=20, return_logits=False, save_grad=False):
         """
         Take a conditioning sequence of indices idx (LongTensor of shape (b,t)) and complete
         the sequence max_new_tokens times, feeding the predictions back into the model each time.

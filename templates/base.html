@@ -29,11 +29,11 @@
                 <!-- Button for submitting the add action -->
                 <br>
                 <div class="hbox-div">
-                    Number of New Tokens Generated: <input type="number" name="numTokens" value={{num_tokens}}>
+                    Number of New Tokens Generated: &ensp; <input type="number" name="numTokens" value={{num_tokens}}>
                 </div>
                 
                 <div class="hbox-div">
-                    Selected Attention Layer: 
+                    Selected Attention Layer: &ensp;
                     <input list="attentionLayers" name="attentionLayer" id="attentionLayer" placeholder="{{sel_attn_ind}}">
                     <datalist id="attentionLayers">
                         <option value="1">
@@ -51,6 +51,7 @@
                     </datalist>
                 </div>
                 <div class="hbox-div">
+                    GPT-2 Model Behaviors: &ensp;
                     <input type="radio" id="deterministic" name="random_state" value="deterministic" {{deterministic}}>
                     <label for="deterministic">Deterministic</label> &ensp;&ensp;
                     <input type="radio" id="random" name="random_state" value="random" {{random}}> 

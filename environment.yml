@@ -1,0 +1,17 @@
+name: LangVis
+channels:
+  - pytorch
+  - conda-forge
+  - anaconda
+  - defaults
+dependencies:
+  - torchvision
+  - torch
+  - pip:
+    - diffusers==0.2.4
+    - flask==2.2.2
+    - flask-sqlalchemy==3.0.2
+    - huggingface-hub==0.9.1
+    - sqlalchemy==1.4.44
+    - tokenizers==0.12.1
+    - transformers==4.21.2

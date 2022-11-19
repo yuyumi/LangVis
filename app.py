@@ -11,6 +11,8 @@ import argparse
 
 import random
 
+initialized=False
+
 args = argparse.Namespace()
 args.lang_model = "gpt2"
 args.random_state = 0
@@ -140,7 +142,12 @@ def generate():
 # API route for directing to the main page
 @app.route("/")
 def home():
+    global initialized
     # Get all stored todo items
+    if not initialized:
+        Tokens.query.delete()
+        initialized = True
+
     token_list = Tokens.query.all()
     if len(token_list) > 0:
         for i in range(len(token_list)):
