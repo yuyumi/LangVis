@@ -19,13 +19,13 @@
         <!-- Form for adding a new todo item in the list with POST method -->
         <!-- Use the /add API route for adding a new item -->
         <form action="/generate" method="post">
-            <div class="input-div">
+            <div class="input-div" onkeydown="return submitForm(event)" tabindex="-1">
                 <div>
                     <!-- Header of the app -->
                     <h1 class="rainbow-text">Text Editor</h1>
                 </div>
                 <!-- Get the description of the todo item from users' input -->
-                <textarea id="inputBox" name="textInput" rows="25" cols="80" class="text-editor">{{current_output_full_text}}</textarea>
+                <textarea id="inputBox" name="textInput" rows="25" cols="80" class="text-editor" tabindex="-1" style="outline: none;" required>{{current_output_full_text}}</textarea>
                 <!-- Button for submitting the add action -->
                 <br>
                 <div class="hbox-div">
@@ -51,13 +51,13 @@
                     </datalist>
                 </div>
                 <div class="hbox-div">
-                    GPT-2 Model Behaviors: &ensp;
+                    GPT-2 Model Behavior: &ensp;
                     <input type="radio" id="deterministic" name="random_state" value="deterministic" {{deterministic}}>
                     <label for="deterministic">Deterministic</label> &ensp;&ensp;
                     <input type="radio" id="random" name="random_state" value="random" {{random}}> 
                     <label for="random">Random</label> 
                 </div>
-                <button type="submit">Generate</button>
+                <div class="hbox-div">Click &ensp; <kbd>tab</kbd> &ensp; to &ensp;<button type="submit">Generate</button>&ensp; Texts</div>
             </div>
         </form>
 
@@ -136,6 +136,15 @@ function markKeyWordToken(x) {
         keyword_token.style.borderWidth = "3px";
         keyword_token.style.borderColor = "darkSlateBlue";
         keyword_token.style.borderStyle = "outset";
+    }
+}
+
+function submitForm(e) {
+    var keyCode = e.which || e.keyCode;
+    console.log(keyCode)
+    if(keyCode && keyCode == 9) {  
+        e.preventDefault()
+        document.forms[0].submit();
     }
 }
 

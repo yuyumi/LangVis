@@ -84,7 +84,12 @@ def generate():
     layer_sel = int(layer_sel) - 1
     args.attn_layer_sel = f"attn_layer_{layer_sel:d}"
     
-    args.prompt = input_text
+    args.prompt = input_text.rstrip(" ")
+    print(args.prompt)
+
+    if len(args.prompt) <= 0:
+        return redirect(url_for("home"))
+
     args.num_tokens = int(num_tokens)
 
     output = generate_tokens(args)
@@ -156,7 +161,7 @@ def home():
                 saliency_scores = [float(score) for score in saliency_scores]
                 min_score = min(saliency_scores)
                 saliency_scores = [score - min_score for score in saliency_scores]
-                max_score = max(saliency_scores)
+                max_score = max(saliency_scores) + 1e-6
                 saliency_scores = [score / max_score for score in saliency_scores]
                 scale = 12
                 base = 8
