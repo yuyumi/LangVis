@@ -1,7 +1,7 @@
 # LangVis
 CS 279R Final Project
 
-[demo](demo_image.png)
+![demo](demo_image.png)
 
 To install the dependencies, first run `pip install -e .` then run `pip install Flask` and `pip install SQLAlchemy`.
 
