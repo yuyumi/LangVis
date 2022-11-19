@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- Use responsive layout -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+
+    <!-- Import the stylesheets  -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <link rel="stylesheet" type= "text/css" href= "{{ url_for('static',filename='style/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+</head>
+
+<body>
+    <div class="main-div">
+        <!-- Form for adding a new todo item in the list with POST method -->
+        <!-- Use the /add API route for adding a new item -->
+        <form action="/generate" method="post">
+            <div class="input-div">
+                <div>
+                    <!-- Header of the app -->
+                    <h1 class="rainbow-text">Text Editor</h1>
+                </div>
+                <!-- Get the description of the todo item from users' input -->
+                <textarea id="inputBox" name="textInput" rows="25" cols="80" class="text-editor">{{current_output_full_text}}</textarea>
+                <!-- Button for submitting the add action -->
+                <br>
+                <div class="hbox-div">
+                    Number of New Tokens Generated: <input type="number" name="numTokens" value={{num_tokens}}>
+                </div>
+                
+                <div class="hbox-div">
+                    Selected Attention Layer: 
+                    <input list="attentionLayers" name="attentionLayer" id="attentionLayer" placeholder="{{sel_attn_ind}}">
+                    <datalist id="attentionLayers">
+                        <option value="1">
+                        <option value="2">
+                        <option value="3">
+                        <option value="4">
+                        <option value="5">
+                        <option value="6">
+                        <option value="7">
+                        <option value="8">
+                        <option value="9">
+                        <option value="10">
+                        <option value="11">
+                        <option value="12">
+                    </datalist>
+                </div>
+                <div class="hbox-div">
+                    <input type="radio" id="deterministic" name="random_state" value="deterministic" {{deterministic}}>
+                    <label for="deterministic">Deterministic</label> &ensp;&ensp;
+                    <input type="radio" id="random" name="random_state" value="random" {{random}}> 
+                    <label for="random">Random</label> 
+                </div>
+                <button type="submit">Generate</button>
+            </div>
+        </form>
+
+        
+        <!-- Container for the todo list -->
+        <div class="output-div">
+            <div>
+                <h1 class="rainbow-viz">Generated Text</h1>
+            </div>
+            <!-- Iterate through the todo_list stored in the SQL database -->
+            <div class="output-token-panel">
+                {% for token in token_list %}
+                    <!-- Container for each token item -->
+                    <span class="token" id={{token.intext_index}} style="width:{{token.token_len * 9.3}}px;"
+                        onmouseover="highlightToken(this)" onmouseout="normalToken(this)" onclick="markKeyWordToken(this)"
+                        data-saliency={{token.saliency}} data-keywordInd={{token.keyword_ind}}>
+                        {{token.token }}
+                    </span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+function highlightToken(x) {
+    var tokens = document.getElementsByClassName('token');
+    var stop_index = parseInt(x.id);
+    var saliency = String(x.getAttribute("data-saliency")).split(",");
+    var number_saliency = saliency.map(Number);
+    console.log(number_saliency);
+
+    if (number_saliency.reduce((a, b) => a + b, 0) > 0) {
+        for (var i = 0; i < stop_index; ++i) {
+            var pre_token = tokens[i];  
+            // var fontsize = "12px";
+            pre_token.style.fontSize = number_saliency[i] + 'px';
+            a = 1 / 12 * (number_saliency[i] - 8)
+            console.log(a)
+            pre_token.style.backgroundColor = "rgba(255, 0, 0," + a + ")";
+        }
+
+        x.style.fontSize = "12px";
+        x.style.backgroundColor = "green";
+    } 
+}
+
+function normalToken(x) {
+    var tokens = document.getElementsByClassName('token');
+    var stop_index = parseInt(x.id);
+    for (var i = 0; i < stop_index; ++i) {
+        var pre_token = tokens[i];  
+        pre_token.style.fontSize = '12px';
+        pre_token.style.backgroundColor = "transparent";
+        pre_token.style.borderWidth = "0px";
+        pre_token.style.borderColor = "transparent";
+        pre_token.style.borderStyle = "none";
+    }
+    x.style.fontSize = "12px";
+    x.style.backgroundColor = "transparent";
+}
+
+function markKeyWordToken(x) {
+    var tokens = document.getElementsByClassName('token');
+    var keyword_ind = parseInt(x.getAttribute("data-keywordInd"));
+
+    for (var i = 0; i < tokens.length; ++i) {
+        var token = tokens[i];  
+        token.style.borderWidth = "0px";
+        token.style.borderColor = "transparent";
+        token.style.borderStyle = "none";
+    }
+
+    if (keyword_ind >= 0) {
+        var keyword_token = tokens[keyword_ind];
+        keyword_token.style.borderWidth = "3px";
+        keyword_token.style.borderColor = "darkSlateBlue";
+        keyword_token.style.borderStyle = "outset";
+    }
+}
+
+</script>
+
+</html>

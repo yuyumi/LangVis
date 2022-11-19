@@ -1,0 +1,155 @@
+/* Style for the body */
+body {
+    /* Use flex display */
+    display: flex;
+    /* Display items in a column */
+    flex-direction: column;
+    /* Center align text */
+    text-align: center;
+    /* Occupy the whole screen */
+    width: 100%;
+    height: 100%;
+    /* Use light blue background color */
+    background-color: #d2f0e8;
+}
+
+.main-div {
+    display: flex;
+    flex-direction: row;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+.text-editor {
+  padding: 12px 20px;
+  border: 2px #ccc;
+  border-style: solid;
+  box-shadow: 0 0 3px #ccc;
+}
+
+.rainbow-text {
+    background-image: linear-gradient(to left, #52006A, #CD113B, #FF7600, #FFA900);
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.rainbow-viz {
+    background-image: linear-gradient(to left, #23049D, #AA2EE6, #FF79CD, #FFDF6B);
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hbox-div {
+    display: flex;
+    flex-direction: row;
+    padding: 2px;
+}
+
+.input-div {
+    display: flex;
+    /* Display items in a column */
+    flex-direction: column;
+    /* Center align items */
+    align-items: center;
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+.output-div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 5%;
+    margin-right: 0%;
+}
+
+.output-token-panel {
+    display: flex;
+    /* Display items in a column */
+    flex-direction: row;
+    /* Center align items */
+    width: 100%;
+    background-color: #E7F6F2;
+    flex-wrap: wrap;
+    background-color: white;
+    border: 2px #ccc;
+    border-style: solid;
+    box-shadow: 0 0 3px #ccc;
+    padding: 12px 20px;
+}
+
+.token {
+    padding-right: 3px;
+    font-size: 12px;
+    height: 30px;
+    /* width: 60px; */
+    /* height: 30px; */
+}
+
+/* Style for the container of todo list */
+.center-div {
+    /* Use flex display */
+    display: flex;
+    /* Display items in a column */
+    flex-direction: column;
+    /* Center align items */
+    align-items: center;
+    /* Set width to be 60% of its parent element */
+    width: 60%;
+    /* Set margin on right and left to 20%*/
+    margin-left: 20%;
+    margin-right: 20%;
+}
+
+/* Style the container of search bar */
+.search-bar {
+    /* Use flex display */
+    display: flex;
+    /* Display all widgets in search bar in a row */
+    flex-direction: row;
+    /* Set the margin at top to be 5px */
+    margin-top: 5px;
+}
+
+/* Style the list */
+ul {
+    /* Display items in block */
+    display: block;
+    /* Remove bullet in front of each list item */
+    list-style: none;
+    /* Center align items */
+    align-items: center;
+    /* Change the background color */
+    background-color: #A5C9CA;
+    /* Remove margin */
+    margin: 0%;
+    /* Pad 15px each side */
+    padding: 15px;
+    /* Round the border */
+    border-radius: 10px;
+    /* Set width to be 60% of its parent */
+    width: 60%;
+    /* Set height to be 100% of its parent */
+    height: 100%;
+}
+
+/* Style list item */
+li {
+    /* Set the top margin to 10px to separate each item vertically in the list */
+    margin-top: 10px;
+    /* Use flex display */
+    display: flex;
+    /* Display items in row */
+    flex-direction: row;
+    /* Occupy the full width of the parent element */
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.6);
+    padding: 3px;
+    /* Round the corners */
+    border-radius: 5px;
+}
