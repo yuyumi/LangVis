@@ -38,6 +38,11 @@ def main(args):
     
     out = args.prompt
     
+    if args.saliency_metric == "IG":
+        model.use_ig = True
+    else:
+        model.use_ig = False
+
     input_tokens = tokenizer(args.prompt)
     input_tokens = [tokenizer.decode(tok.unsqueeze(0)) for tok in input_tokens[0]]
     output_dict["input_tokens"] = input_tokens
@@ -57,21 +62,25 @@ def main(args):
         output_dict["tokens"].append(token)
 
         if args.saliency:
-            logits = interm_output[1]
-            tok_emb = interm_output[2]
-            grads = torch.autograd.grad(tuple(torch.flatten(logits[..., y[0][-1]])), tok_emb, retain_graph=True)
-            aggregated_grads = []
-            for grad, inp in zip(grads, tok_emb):
-                assert args.saliency_metric in ["mean", "inputXGrad"]
-                if args.saliency_metric == "inputXGrad":
-                    aggregated_grads.append(torch.norm(grad * inp, dim=-1))
-                elif args.saliency_metric == "mean":
-                    aggregated_grads.append(grad.abs().mean(-1))
-                
+            if args.saliency_metric == "IG":
+                aggregated_grads = interm_output[2].unsqueeze(0)
+            else:
+                logits = interm_output[1]
+                tok_emb = interm_output[2]
+                grads = torch.autograd.grad(tuple(torch.flatten(logits[..., y[0][-1]])), tok_emb, retain_graph=True)
+                aggregated_grads = []
+                for grad, inp in zip(grads, tok_emb):
+                    assert args.saliency_metric in ["mean", "inputXGrad"]
+                    if args.saliency_metric == "inputXGrad":
+                        aggregated_grads.append(torch.norm(grad * inp, dim=-1))
+                    elif args.saliency_metric == "mean":
+                        aggregated_grads.append(grad.abs().mean(-1))
+
             if "saliency" not in output_dict.keys():
                 output_dict["saliency"] = []
             output_dict["saliency"].append(aggregated_grads[0].cpu().detach()[0].tolist())
-        
+        torch.cuda.empty_cache()
+
     output_dict["output_full_text"] = out
     output_dict["output_token_list"] = [tokenizer.decode(token.unsqueeze(0)) for token in y[0]]
     

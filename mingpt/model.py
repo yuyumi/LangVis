@@ -16,6 +16,8 @@ from torch.nn import functional as F
 
 from mingpt.utils import CfgNode as CN
 
+from captum.attr import IntegratedGradients
+
 # -----------------------------------------------------------------------------
 
 class NewGELU(nn.Module):
@@ -119,6 +121,8 @@ class GPT(nn.Module):
         assert config.block_size is not None
         self.save_grad = False
         self.block_size = config.block_size
+        self.ig_attr = False
+        self.use_ig = False
 
         type_given = config.model_type is not None
         params_given = all([config.n_layer is not None, config.n_head is not None, config.n_embd is not None])
@@ -262,22 +266,27 @@ class GPT(nn.Module):
     def forward(self, idx, targets=None):
         attn_dict = {}
         device = idx.device
-        b, t = idx.size()
-        assert t <= self.block_size, f"Cannot forward sequence of length {t}, block size is only {self.block_size}"
-        pos = torch.arange(0, t, dtype=torch.long, device=device).unsqueeze(0) # shape (1, t)
 
-        # forward the GPT model itself
-        # if self.save_grad:
-        #     tok_emb = self.transformer.wte(idx).requires_grad_(True)
-        # else:
-        #     tok_emb = self.transformer.wte(idx) # token embeddings of shape (b, t, n_embd)
-        tok_emb = self.transformer.wte(idx) # token embeddings of shape (b, t, n_embd)
-        pos_emb = self.transformer.wpe(pos) # position embeddings of shape (1, t, n_embd)
-        if self.save_grad:
-            tok_pos_emb = (tok_emb + pos_emb).requires_grad_(True)
-            x = self.transformer.drop(tok_pos_emb)
+        if not self.ig_attr:
+            b, t = idx.size()
+            assert t <= self.block_size, f"Cannot forward sequence of length {t}, block size is only {self.block_size}"
+            pos = torch.arange(0, t, dtype=torch.long, device=device).unsqueeze(0) # shape (1, t)
+
+            # forward the GPT model itself
+            # if self.save_grad:
+            #     tok_emb = self.transformer.wte(idx).requires_grad_(True)
+            # else:
+            #     tok_emb = self.transformer.wte(idx) # token embeddings of shape (b, t, n_embd)
+            tok_emb = self.transformer.wte(idx) # token embeddings of shape (b, t, n_embd)
+            pos_emb = self.transformer.wpe(pos) # position embeddings of shape (1, t, n_embd)
+            if self.save_grad:
+                tok_pos_emb = (tok_emb + pos_emb).requires_grad_(True)
+                x = self.transformer.drop(tok_pos_emb)
+            else:
+                x = self.transformer.drop(tok_emb + pos_emb)
         else:
-            x = self.transformer.drop(tok_emb + pos_emb)
+            tok_pos_emb = idx.clone()
+            x = self.transformer.drop(idx)
 
         block_index = 0
         for block in self.transformer.h:
@@ -292,6 +301,10 @@ class GPT(nn.Module):
         if targets is not None:
             loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1)
 
+        if self.ig_attr:
+            temperature = 1.0
+            return logits[:, -1, :] / temperature
+
         if self.save_grad:
             return logits, loss, attn_dict, tok_pos_emb # tok_emb
         
@@ -304,6 +317,9 @@ class GPT(nn.Module):
         Most likely you'll want to make sure to be in model.eval() mode of operation for this.
         """
         self.save_grad = save_grad
+
+        ig = IntegratedGradients(self)
+
         for _ in range(max_new_tokens):
             # if the sequence context is growing too long we must crop it at block_size
             idx_cond = idx if idx.size(1) <= self.block_size else idx[:, -self.block_size:]
@@ -326,10 +342,27 @@ class GPT(nn.Module):
                 idx_next = torch.multinomial(probs, num_samples=1)
             else:
                 _, idx_next = torch.topk(probs, k=1, dim=-1)
+
+            if self.use_ig:
+                device = idx_cond.device
+                b, t = idx_cond.size()
+
+                pos = torch.arange(0, t, dtype=torch.long, device=device).unsqueeze(0) # shape (1, t)
+                tok_emb = self.transformer.wte(idx_cond) # token embeddings of shape (b, t, n_embd)
+                pos_emb = self.transformer.wpe(pos) # position embeddings of shape (1, t, n_embd)
+                tok_pos_emb = (tok_emb + pos_emb).requires_grad_(True)
+                input = tok_pos_emb
+                self.ig_attr = True
+                attributions = ig.attribute(input, target=idx_next, internal_batch_size=1)
+                attributions = torch.mean(attributions, dim=2).view(1, -1)
+                self.ig_attr = False
+
             # append sampled index to the running sequence and continue
             idx = torch.cat((idx, idx_next), dim=1)
 
         if return_logits:
+            if self.use_ig:
+                return idx, attns, logits, attributions
             if self.save_grad:
                 return idx, attns, logits, tok_emb
             else:

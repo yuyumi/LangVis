@@ -1,9 +1,11 @@
 # LangVis
 CS 279R Final Project
 
-![demo](demo_img.png)
+![demo](demo_image.png)
 
-To install the dependencies, first run `pip install -e .` then run `pip install Flask` and `pip install SQLAlchemy`.
+To install the dependencies, first run `pip install -e .` then run `pip install captum`, `pip install Flask` and `pip install SQLAlchemy`.
+
+Alternatively, try the new_environment.yml file if you have anaconda installed.
 
 Write your prompt on the left panel, and hit generate button.
 

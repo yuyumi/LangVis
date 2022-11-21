@@ -11,6 +11,8 @@ import argparse
 
 import random
 
+import torch
+
 initialized=False
 
 args = argparse.Namespace()
@@ -70,6 +72,11 @@ def generate():
         num_tokens = 10
     input_text = request.form.get("textInput")
 
+    new_saliency_metric = request.form.get("interpretMethod")
+    if new_saliency_metric in ["mean", "inputXGrad", "IG"]:
+        args.saliency_metric = new_saliency_metric
+    print(args.saliency_metric)
+
     layer_sel = request.form.get("attentionLayer")
     if request.form.get("random_state") == "deterministic":
         print(args.random_state)
@@ -82,10 +89,10 @@ def generate():
     if layer_sel == "":
         layer_sel = "12"
     layer_sel = int(layer_sel) - 1
-    args.attn_layer_sel = f"attn_layer_{layer_sel:d}"
+    if 0 <= layer_sel <= 11:
+        args.attn_layer_sel = f"attn_layer_{layer_sel:d}"
     
     args.prompt = input_text.rstrip(" ")
-    print(args.prompt)
 
     if len(args.prompt) <= 0:
         return redirect(url_for("home"))
@@ -140,6 +147,7 @@ def generate():
     
     current_output_full_text = output["output_full_text"]
 
+    torch.cuda.empty_cache()
     # Redirect to the home page with updated todo list
     return redirect(url_for("home"))
 
@@ -176,9 +184,11 @@ def home():
     sel_attn_ind = int(args.attn_layer_sel[args.attn_layer_sel.rfind("_")+1:]) + 1
     random = "checked" if args.do_sample else ""
     deterministic = "checked" if not args.do_sample else ""
+    interpret_method = args.saliency_metric
 
     return render_template("base.html", token_list=token_list, current_output_full_text=current_output_full_text,
-                            num_tokens=num_tokens, sel_attn_ind=sel_attn_ind, deterministic=deterministic, random=random)
+                            num_tokens=num_tokens, sel_attn_ind=sel_attn_ind, deterministic=deterministic, random=random,
+                            interpret_method=interpret_method)
 
 
 # When run this file call the functions below

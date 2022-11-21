@@ -51,13 +51,26 @@
                     </datalist>
                 </div>
                 <div class="hbox-div">
+                    Interpretability Method: &ensp;
+                    <input list="interpretMethods" name="interpretMethod" id="interpretMethod" placeholder="{{interpret_method}}">
+                    <datalist id="interpretMethods">
+                        {% for method in ["mean", "inputXGrad", "IG"] %}
+                            {% if method == interpret_method %}
+                                <option value={{method}} selected>
+                            {% else %}
+                                <option value={{method}}>
+                            {% endif %}
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="hbox-div">
                     GPT-2 Model Behavior: &ensp;
                     <input type="radio" id="deterministic" name="random_state" value="deterministic" {{deterministic}}>
                     <label for="deterministic">Deterministic</label> &ensp;&ensp;
                     <input type="radio" id="random" name="random_state" value="random" {{random}}> 
                     <label for="random">Random</label> 
                 </div>
-                <div class="hbox-div">Click &ensp; <kbd>tab</kbd> &ensp; to &ensp;<button type="submit">Generate</button>&ensp; Texts</div>
+                <div class="hbox-div">Click &ensp; <kbd>tab</kbd> &ensp; to &ensp;<button type="submit">Auto Complete</button>&ensp; Texts</div>
             </div>
         </form>
 
