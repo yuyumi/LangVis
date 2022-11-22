@@ -85,6 +85,13 @@ def main(args):
     output_dict["output_token_list"] = [tokenizer.decode(token.unsqueeze(0)) for token in y[0]]
     
     if args.attn_pairs:
+        y, out, interm_output = generate(prompt=out,
+                                         tokenizer=tokenizer, 
+                                         model=model,
+                                         num_samples=1, 
+                                         steps=1,
+                                         do_sample=args.do_sample,
+                                         saliency=args.saliency)
         attn = interm_output[0]
         output_dict["key_attn_pairs"] = {}
         output_dict["key_attn_pairs_ind"] = []
@@ -92,15 +99,19 @@ def main(args):
             agg_attn = torch.amax(attn[args.attn_layer_sel][0], dim=0).cpu().detach()[1:, 1:]
         elif args.agg_method == "mean":
             agg_attn = torch.mean(attn[args.attn_layer_sel][0], dim=0).cpu().detach()[1:, 1:]
+        elif args.agg_method.isnumeric():
+            agg_attn = attn[args.attn_layer_sel][0][int(args.agg_method) - 1].cpu().detach()[1:, 1:]
             
         for i in range(agg_attn.shape[1]):
             key_ind = torch.argmax(agg_attn[i])
-            if key_ind == i or i < args.num_tokens_buffed:
+            # if key_ind == i or i < args.num_tokens_buffed:
+            #     continue
+            if i < args.num_tokens_buffed:
                 continue
-            iqr = torch.quantile(agg_attn[i][:i+1], 0.75) - torch.quantile(agg_attn[i][:i+1], 0.25)
-            if 1.5 * iqr + torch.quantile(agg_attn[i][:i+1], 0.75) > agg_attn[i][key_ind]:
+            # iqr = torch.quantile(agg_attn[i][:i+1], 0.75) - torch.quantile(agg_attn[i][:i+1], 0.25)
+            # if 1.5 * iqr + torch.quantile(agg_attn[i][:i+1], 0.75) > agg_attn[i][key_ind]:
             # if 2 * torch.mean(agg_attn[i][:i+1]) > agg_attn[i][key_ind]:
-                continue
+                # continue
             
             key_word = output_dict["output_token_list"][key_ind+1].strip(" ")
             cur_word = output_dict["output_token_list"][i+1].strip(" ")

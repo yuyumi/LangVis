@@ -10,7 +10,8 @@ body {
     width: 100%;
     height: 100%;
     /* Use light blue background color */
-    background-color: #d2f0e8;
+    /* background-color: #d2f0e8; */
+    background-image: linear-gradient(to bottom right, #B3FFAE, #F7A4A4);
 }
 
 .main-div {
@@ -33,14 +34,16 @@ body {
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+    font-family: 'Trebuchet MS', sans-serif;
 }
 
 .rainbow-viz {
-    background-image: linear-gradient(to left, #23049D, #AA2EE6, #FF79CD, #FFDF6B);
+    background-image: linear-gradient(to left, #23049D, #AA2EE6, #FF79CD, #ddbc45);
     color: transparent;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+    font-family: 'Trebuchet MS', sans-serif;
 }
 
 .vbox-div {

@@ -22,7 +22,7 @@ args.saliency = True
 args.device = "cuda"
 args.saliency_metric = "mean"
 args.attn_layer_sel = "attn_layer_11"
-args.agg_method = "mean"
+args.agg_method = "max"
 args.num_tokens = 10
 args.num_tokens_buffed = 5
 args.attn_pairs = True
@@ -86,11 +86,15 @@ def generate():
         args.random_state = random.randint(0, 1e8)
         args.do_sample = True
 
-    if layer_sel == "":
-        layer_sel = "12"
-    layer_sel = int(layer_sel) - 1
-    if 0 <= layer_sel <= 11:
-        args.attn_layer_sel = f"attn_layer_{layer_sel:d}"
+    head_sel = request.form.get("attentionHead")
+    if head_sel in (["mean", "max"] + [str(i) for i in range(1, 9)]):
+        args.agg_method = head_sel
+    print(args.agg_method)
+
+    if layer_sel.isnumeric():
+        layer_sel = int(layer_sel) - 1
+        if 0 <= layer_sel <= 11:
+            args.attn_layer_sel = f"attn_layer_{layer_sel:d}"
     
     args.prompt = input_text.rstrip(" ")
 
@@ -185,9 +189,11 @@ def home():
     random = "checked" if args.do_sample else ""
     deterministic = "checked" if not args.do_sample else ""
     interpret_method = args.saliency_metric
+    sel_head_ind = args.agg_method
 
     return render_template("base.html", token_list=token_list, current_output_full_text=current_output_full_text,
-                            num_tokens=num_tokens, sel_attn_ind=sel_attn_ind, deterministic=deterministic, random=random,
+                            num_tokens=num_tokens, sel_attn_ind=sel_attn_ind, sel_head_ind=sel_head_ind,
+                            deterministic=deterministic, random=random,
                             interpret_method=interpret_method)
 
 
