@@ -3,9 +3,11 @@ CS 279R Final Project
 
 ![demo](demo_image.png)
 
-To install the dependencies, first run `pip install -e .` then run `pip install captum`, `pip install Flask` and `pip install SQLAlchemy`.
+To install the dependencies, first run `pip install -e .` then run `pip install captum`, `pip install Flask` and `pip install Flak-SQLAlchemy`.
 
 Alternatively, try the new_environment.yml file if you have anaconda installed.
+
+Run `python app.py` to open the application.
 
 Write your prompt on the left panel, and hit generate button.
 
